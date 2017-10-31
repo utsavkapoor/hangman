@@ -1,0 +1,31 @@
+body {
+	font-family: 'Roboto', sans-serif;
+	font-size: 20px;
+  color:white;
+  background-image:url("https://gameind.files.wordpress.com/2012/01/limbo3.jpg");
+  background-repeat: no-repeat;
+  background-size:cover;
+	text-align: left;
+  padding-left:40px;
+}
+
+.container-fluid {
+	padding: 0;
+	margin-top: 40px;
+}
+.row{
+  padding-top:50px;
+}
+
+footer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 100px;
+    width: 100%;
+}
+
+.custom {
+  border-radius: 12px !important;
+  width: 50% !important;
+}
