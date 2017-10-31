@@ -33,10 +33,12 @@ app.route('/')
      res.sendFile(process.cwd() + '/views/index.html');
    })
 
-app.route('').get(function(req,res){
+app.route('/highscore').get(function(req,res){
+       res.sendFile(process.cwd() + '/views/highscore.html');
 });
 
-app.route('').get(function(req,res){
+app.route('/rules').get(function(req,res){
+  res.sendFile(process.cwd() + '/views/rules.html');
 });
 
 // Respond not found to all the wrong routes

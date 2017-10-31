@@ -1,11 +1,11 @@
 {
-  "name": "ukapoor-url-shortner",
+  "name": "ukapoor-hangman",
   "version": "1.0.0",
-  "description": "Free Code Camp: Backend API Challenge of URL Shortner",
+  "description": "A hangman Game Implementation Using Node, Express, D3, Bootstrap, Animate",
   "dependencies": {
-    "express": "^4.15.4",
+    "express": "^4.16.2",
     "mongod": "^2.0.0",
-    "mongodb": "^2.2.31"
+    "mongodb": "^2.2.33"
   },
   "main": "server.js",
   "scripts": {
@@ -17,6 +17,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/utsavkapoor/url-shortner"
+    "url": "https://github.com/utsavkapoor/hangman"
   }
 }
