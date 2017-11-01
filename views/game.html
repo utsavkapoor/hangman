@@ -1,15 +1,47 @@
 <!DOCTYPE html>
 <html>
    <head>
-      <title>Highscores</title>
+      <title>Playground</title>
      <meta content="utf-8" http-equiv="encoding">
       <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
-      <script type ="text/javascript" src="./../public/js/d3.min.js" charset="utf-8"></script>
       <script language="JavaScript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
       <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
       <link href="/public/style.css" rel="stylesheet" type="text/css">
-
+      <script language="JavaScript" type="text/javascript" src="./../public/js/client-hangman.js"></script>
    </head>
   <body>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 text-center">
+        <h1>Hangman Playground</h1>
+            <button type="button" class="btn btn-lg btn-secondary active custom-button">New Game</button>
+            <button type="button" class="btn btn-lg btn-warning active custom-button">I Quit!</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+          <div class="btn-group-vertical" role="group">
+            <button type="button" class="btn btn-lg btn-info active custom-button">Hint</button>
+        </div>
+          <h3>Clue: <span id="clue">Here will be clue when clue button presses.</span></h3>
+          <p style="margin-top:5px;">Games Won:<span id="games-won"></span></p>
+            <p style="margin-top:5px;">Games Lost:<span id="games-lost"></span></p>
+      </div>
+        <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9">
+          <canvas id="hangman-playground" width="200" height="200">
+          </canvas>
+        </div>
+    </div>
+      <div class="row">
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 col-xl-3">
+          <ul id="keyboard"></ul>
+        </div>
+        <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 col-xl-9 text-center">
+          <h3 id="question"></h3><br>
+          <h4 id="answer"><ul id="answer-ul" class="text-center"></ul></h4><br>
+          <h2 id="lives">You have 10 Lives left!</h2>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

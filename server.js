@@ -7,9 +7,13 @@
 
 var fs = require('fs');
 var express = require('express');
+var request = require('request');
 var app = express();
 var port = process.env.PORT || 3000;
 var highscore = require('./views/high-data.js');
+
+var session_stats = {won:0,lost:0};
+
 
 
 if (!process.env.DISABLE_XORIGIN) {
@@ -77,6 +81,19 @@ app.get('/highscore-data',function(req,res){
   }
 
 });
+
+app.get('/question',function(req,res){
+  var rand = Math.random() * (200 - 1) + 1;
+  let url ="https://qriusity.com/v1/questions?page="+rand+"&limit=1";
+  request(url,function(error,response,body){
+    var JSONData = JSON.parse(body);
+    let question = JSONData[0].question;
+    let option = "option" + JSONData[0].answers;
+    let answer =  JSONData[0][option];
+    let hint = JSONData[0].category.name;
+    res.send({question:question,answer:answer,hint:hint});
+  });
+})
 
 // Respond not found to all the wrong routes
 app.use(function(req, res, next){
