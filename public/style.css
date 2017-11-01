@@ -29,3 +29,16 @@ footer {
   border-radius: 12px !important;
   width: 50% !important;
 }
+#highscore{
+  color:white;
+  background-color:#FFA500 !important;
+}
+
+.table-bordered td, .table-bordered th{
+    border-color: white !important;
+}
+
+.table-nonfluid {
+   width: auto !important;
+  margin: 0 auto;
+}

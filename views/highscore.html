@@ -2,8 +2,13 @@
 <html>
    <head>
       <title>Highscores</title>
+     <meta content="utf-8" http-equiv="encoding">
       <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet" type="text/css">
+      <script type ="text/javascript" src="./../public/js/d3.min.js" charset="utf-8"></script>
+      <script language="JavaScript" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.js"></script>
+      <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
       <link href="/public/style.css" rel="stylesheet" type="text/css">
+
    </head>
    <body>
       <div class="container-fluid">
@@ -15,8 +20,10 @@
         </div>
       <div class="row">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 form-group">
-          <label ><strong>Highscore-Table</strong></label>
-          <div autocomplete="off" id="highscore" class="text-center"></div>
+          <label><strong>Highscore-Table</strong></label>
+          <div autocomplete="off" class="text-center">
+            <table id="highscore" class="table table-nonfluid table-inverse table-responsive text-center"></table>
+          </div>
           </div>
         </div>
     <div class="row">
@@ -25,5 +32,6 @@
       </div>
         </div>
      </div>
+          <script language="JavaScript" type="text/javascript" src="./../public/js/highscore.js"></script>
    </body>
 </html>
