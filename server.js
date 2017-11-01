@@ -9,6 +9,7 @@ var fs = require('fs');
 var express = require('express');
 var app = express();
 var port = process.env.PORT || 3000;
+var highscore = require('./views/high-data.js');
 
 
 if (!process.env.DISABLE_XORIGIN) {
@@ -39,6 +40,42 @@ app.route('/highscore').get(function(req,res){
 
 app.route('/rules').get(function(req,res){
   res.sendFile(process.cwd() + '/views/rules.html');
+});
+
+app.route('/game').get(function(req,res){
+  res.sendFile(process.cwd() + '/views/game.html');
+});
+
+app.get('/highscore-data',function(req,res){
+    var object = {status:null,"pie_data":null,"player_data":null};
+    let i=0;
+  highscore.findHighData().then(function(data){
+      send_data("pie_data",data);
+    
+  },function(err){
+    console.log("error in pie data");
+        res.send({status:'error'});
+    });
+  
+  highscore.findNameData().then(function(data){
+        send_data("player_data",data);
+  },function(err){
+        console.log(err);
+        res.send({status:'error'});
+  });
+
+  function send_data(key,value){
+    i++;
+    if (i===1){
+      object[key] = value;
+    } else if (i===2){
+      object[key] = value;
+      i=0;
+      object.status ='sucess';
+      res.send(object);
+    }
+  }
+
 });
 
 // Respond not found to all the wrong routes
