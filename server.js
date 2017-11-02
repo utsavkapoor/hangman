@@ -11,6 +11,7 @@ var request = require('request');
 var app = express();
 var port = process.env.PORT || 3000;
 var highscore = require('./views/high-data.js');
+var session = require('express-session');
 
 var session_stats = {won:0,lost:0};
 
@@ -30,6 +31,8 @@ if (!process.env.DISABLE_XORIGIN) {
 }
 
 app.use('/public', express.static(process.cwd() + '/public'));
+
+
 
 
 
@@ -91,6 +94,7 @@ app.get('/question',function(req,res){
     let option = "option" + JSONData[0].answers;
     let answer =  JSONData[0][option];
     let hint = JSONData[0].category.name;
+    //Send hangman session information here. A new Hangman Instance will be created
     res.send({question:question,answer:answer,hint:hint});
   });
 })
