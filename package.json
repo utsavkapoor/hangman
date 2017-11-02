@@ -1,13 +1,16 @@
 {
   "name": "ukapoor-hangman",
   "version": "1.0.0",
-  "description": "A hangman Game Implementation Using Node, Express, D3, Bootstrap, Animate",
+  "description": "A hangman Game Implementation Using Node, Express, D3, Bootstrap, JQuery",
   "dependencies": {
     "express": "^4.16.2",
     "mongod": "^2.0.0",
     "mongodb": "^2.2.33",
     "d3": "^4.11.0",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "express-session": "^1.15.6",
+    "cookie-parser": "^1.4.3",
+    "session-memory-store": "^0.2.2"
   },
   "main": "server.js",
   "scripts": {
