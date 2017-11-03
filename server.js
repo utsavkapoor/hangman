@@ -12,8 +12,25 @@ var app = express();
 var port = process.env.PORT || 3000;
 var highscore = require('./views/high-data.js');
 var session = require('express-session');
+var question,answer,activegame;
+var session_stats = {name:"",won:0,lost:0};
+var mongodb = require('mongodb');
+var mongoclient = mongodb.MongoClient;
+var hangman = require('./views/hangman.js');
+var redisStore = require('connect-redis')(session);
+var redis = require('redis');
 
-var session_stats = {won:0,lost:0};
+var redisClient = redis.createClient();
+
+app.use(session({
+    store:new redisStore({
+      client:redisClient
+    }),
+    name: 'HangmanGameId',
+    secret: 'my-little-secret-game',
+    resave: false,
+    saveUninitialized: true
+}));
 
 
 
@@ -32,14 +49,40 @@ if (!process.env.DISABLE_XORIGIN) {
 
 app.use('/public', express.static(process.cwd() + '/public'));
 
-
-
-
+app.route('/key/:letter').post(function(req,res){
+  //console.log(req.session);
+  if(req.session && req.session.game){
+  loadGame(req.session.game);
+  let letter = req.params.letter;
+  let json = activegame.checkLetter(letter);
+  req.session.game = activegame;
+  req.session.save();
+  console.log(req.session.game);
+  console.log("check value"+json.attempt_left);
+  console.log(json.status);
+  if(json.status === "LOST" || json.status === "WIN"){
+    // make session as null for next game to start
+    req.session.game = null;
+    req.session.save();
+    
+    if(json.status === "WIN"){
+      save_to_database(session_stats,"win");
+    } else {
+      save_to_database(session_stats,"loss");
+    }
+    
+  } 
+  let object = {gameStat:session_stats,attempt_left:json.attempt_left,fillpositions:json.fillpositions,status:json.status};
+  res.send(object);
+  } else {
+    res.status(400).end();
+  }
+});
 
 app.route('/')
    .get(function(req, res) {
      res.sendFile(process.cwd() + '/views/index.html');
-   })
+   });
 
 app.route('/highscore').get(function(req,res){
        res.sendFile(process.cwd() + '/views/highscore.html');
@@ -85,18 +128,40 @@ app.get('/highscore-data',function(req,res){
 
 });
 
-app.get('/question',function(req,res){
+app.get('/question/:name',function(req,res){
   var rand = Math.random() * (200 - 1) + 1;
   let url ="https://qriusity.com/v1/questions?page="+rand+"&limit=1";
   request(url,function(error,response,body){
     var JSONData = JSON.parse(body);
-    let question = JSONData[0].question;
+    question = JSONData[0].question;
     let option = "option" + JSONData[0].answers;
-    let answer =  JSONData[0][option];
+    let space = [];
+    answer =  JSONData[0][option];
+    for (let i=0;i<answer.length;i++){
+      if(answer[i] == " "){
+        space.push(i);
+      }
+    }
     let hint = JSONData[0].category.name;
+    let name = req.params.name;
+    let question_answer = {question:question,answer:answer.length,hint:hint,name:null,win:-1,loss:-1,space:space};
+    //Create a new Instance ans save the session
+    let answer_letters = []
+    for(let i=0;i<answer.length;i++){
+      if(answer_letters.indexOf(answer[i].toLowerCase()) < 0 && answer[i] !== " "){
+        answer_letters.push(answer[i].toLowerCase());
+      }
+    }
+    answer_letters.sort();
+    let new_game = new hangman(answer,0,[],answer_letters);
+    req.session.game = new_game;
+    console.log(req.session.game);
+    req.session.save();
+    console.log("game"+new_game);
+    
     //Send hangman session information here. A new Hangman Instance will be created
-    res.send({question:question,answer:answer,hint:hint});
-  });
+    retrive_info(name,res,question_answer);
+ });
 })
 
 // Respond not found to all the wrong routes
@@ -114,6 +179,86 @@ app.use(function(err, req, res, next) {
  }
 })
 
+//Load In-Session Game
+function loadGame(ongoingGame){
+  activegame = new hangman(answer,ongoingGame.attempts_done,ongoingGame.correct_guessed_letters,ongoingGame.answer_letters);
+}
+
+//function returns game stats to user and sets the stats for the session
+function retrive_info(name,res,object){
+ var url = process.env.MongodbURL;
+  let getUserData = function(){
+  return mongoclient.connect(url).then(function(db){
+    let collection = db.collection('players');
+    let query = {"name":name};
+    return collection.find(query).toArray();
+    }).then(function(results){
+        return results; 
+      });
+    
+
+}
+ getUserData().then(function(data){
+   if(data.length === 0){
+     session_stats.name = name;
+     session_stats.won = 0;
+     session_stats.loss = 0;
+   } else {
+     session_stats.name = data[0].name;
+     session_stats.won = data[0].Win;
+     session_stats.loss = data[0].Loss;
+   }
+   object.name = session_stats.name;
+   object.win = session_stats.won;
+   object.loss = session_stats.loss;
+   //answer = object.answer;
+   question = object.question;
+   res.send(object);
+ 
+ },function(err){
+   console.log("Something is Wrong");
+   res.send(object);
+ });
+}
+// save the game stat to database and all time win percentage
+function save_to_database(session_stats,str){
+  let win = session_stats.won;
+  let loss = session_stats.loss;
+  if(str === "win"){
+    win += 1;
+  } else if(str === "loss"){
+    loss += 1;
+  }
+  
+  let total = win + loss;
+  let name = session_stats.name;
+  let url = process.env.MongodbURL;
+  mongoclient.connect(url,function(err,db){
+    let collection = db.collection('highscore');
+    let query = {name:"none"};
+    if(str ==="win"){
+      var newValues = {$inc: {Total:1,Win:1}};
+    } else if(str === "loss") {
+      var newValues = {$inc: {Total:1,Loss:1}};
+    }
+    collection.updateOne(query,newValues);
+    collection =  db.collection('players');
+    if (total === 1){
+      //this is the first game of the user so add its value to database
+      let object = {name:name,Total:total,Win:win,Loss:loss,Percentage:(win/total)*100};
+      collection.insertOne(object);
+    } else {
+      //User exists so update the fields
+      let newvalues = {$set: {Total:total,Win:win,Loss:loss,Percentage:(win/total)*100} };
+      query = {name:name};
+      collection.updateOne(query,newvalues);
+    }
+    db.close();
+  });
+  
+}
+
 app.listen(port, function () {
  console.log('serverlistening at' + port);
+
 });

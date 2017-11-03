@@ -10,7 +10,9 @@
     "request": "^2.83.0",
     "express-session": "^1.15.6",
     "cookie-parser": "^1.4.3",
-    "session-memory-store": "^0.2.2"
+    "session-memory-store": "^0.2.2",
+    "connect-redis": "^3.3.2",
+    "redis": "^2.8.0"
   },
   "main": "server.js",
   "scripts": {
