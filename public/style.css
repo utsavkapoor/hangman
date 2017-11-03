@@ -73,6 +73,7 @@ ul{
 
 .li_keyboard{
   float:left;
+  margin: 0 5px 5px 0;
 }
 
 .keyboard_hover{

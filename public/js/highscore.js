@@ -1,12 +1,11 @@
 
 $.getJSON('/highscore-data',function(JSON){
-  console.log(JSON.pie_data);
   //let html_high = "<p>"+JSON.pie_data+"</p>"
   //$('#grid').append(html_high);
   let html_players = "<tr><td>Number</td><td>Name</td><td>Wins</td><td>Losses</td></tr>";
   let list = JSON.player_data;
-  for (let i=0;i<5;i++){
-    let temp = list[i];
+  for (let i=1;i<6;i++){
+    let temp = list[i-1];
     let temp_html = "<tr><td>"+i+"</td><td>"+temp.name+"</td><td>"+ temp.win+"</td><td>"+temp.loss+"</td></tr>";
     html_players += temp_html;
   }
@@ -15,7 +14,6 @@ $.getJSON('/highscore-data',function(JSON){
 });
 
 function draw_pie_chart(data_obj){
-  console.log(data_obj);
   let data = [{"label":"win","value":data_obj.win},
               {"label":"loss","value":data_obj.loss}
              ];
