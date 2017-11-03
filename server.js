@@ -20,12 +20,7 @@ var hangman = require('./views/hangman.js');
 var redisStore = require('connect-redis')(session);
 var redis = require('redis');
 
-var redisClient = redis.createClient();
-
 app.use(session({
-    store:new redisStore({
-      client:redisClient
-    }),
     name: 'HangmanGameId',
     secret: 'my-little-secret-game',
     resave: false,
