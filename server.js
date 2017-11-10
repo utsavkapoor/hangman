@@ -59,14 +59,14 @@ app.route('/key/:letter').post(function(req,res){
     // make session as null for next game to start
     req.session.game = null;
     req.session.save();
-    
+
     if(json.status === "WIN"){
       save_to_database(session_stats,"win");
     } else {
       save_to_database(session_stats,"loss");
     }
-    
-  } 
+
+  }
   let object = {gameStat:session_stats,attempt_left:json.attempt_left,fillpositions:json.fillpositions,status:json.status};
   res.send(object);
   } else {
@@ -96,12 +96,12 @@ app.get('/highscore-data',function(req,res){
     let i=0;
   highscore.findHighData().then(function(data){
       send_data("pie_data",data);
-    
+
   },function(err){
     console.log("error in pie data");
         res.send({status:'error'});
     });
-  
+
   highscore.findNameData().then(function(data){
         send_data("player_data",data);
   },function(err){
@@ -124,6 +124,9 @@ app.get('/highscore-data',function(req,res){
 });
 
 app.get('/question/:name',function(req,res){
+  if(req.params.name == ""){
+    res.status(400).send("Bad Request.");
+  }
   var rand = Math.random() * (200 - 1) + 1;
   let url ="https://qriusity.com/v1/questions?page="+rand+"&limit=1";
   request(url,function(error,response,body){
@@ -131,7 +134,7 @@ app.get('/question/:name',function(req,res){
     question = JSONData[0].question;
     let option = "option" + JSONData[0].answers;
     let space = [];
-    answer =  JSONData[0][option];
+    answer =  JSONData[0][option].replace(/[^\w\s]/gi,'');
     for (let i=0;i<answer.length;i++){
       if(answer[i] == " "){
         space.push(i);
@@ -153,7 +156,7 @@ app.get('/question/:name',function(req,res){
     console.log(req.session.game);
     req.session.save();
     console.log("game"+new_game);
-    
+
     //Send hangman session information here. A new Hangman Instance will be created
     retrive_info(name,res,question_answer);
  });
@@ -188,9 +191,9 @@ function retrive_info(name,res,object){
     let query = {"name":name};
     return collection.find(query).toArray();
     }).then(function(results){
-        return results; 
+        return results;
       });
-    
+
 
 }
  getUserData().then(function(data){
@@ -209,7 +212,7 @@ function retrive_info(name,res,object){
    //answer = object.answer;
    question = object.question;
    res.send(object);
- 
+
  },function(err){
    console.log("Something is Wrong");
    res.send(object);
@@ -224,7 +227,7 @@ function save_to_database(session_stats,str){
   } else if(str === "loss"){
     loss += 1;
   }
-  
+
   let total = win + loss;
   let name = session_stats.name;
   let url = process.env.MongodbURL;
@@ -250,7 +253,7 @@ function save_to_database(session_stats,str){
     }
     db.close();
   });
-  
+
 }
 
 app.listen(port, function () {
