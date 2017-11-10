@@ -124,6 +124,9 @@ app.get('/highscore-data',function(req,res){
 });
 
 app.get('/question/:name',function(req,res){
+  if(req.params.name == ""){
+    res.status(400).send("Bad Request.");
+  }
   var rand = Math.random() * (200 - 1) + 1;
   let url ="https://qriusity.com/v1/questions?page="+rand+"&limit=1";
   request(url,function(error,response,body){
@@ -131,7 +134,7 @@ app.get('/question/:name',function(req,res){
     question = JSONData[0].question;
     let option = "option" + JSONData[0].answers;
     let space = [];
-    answer =  JSONData[0][option];
+    answer =  JSONData[0][option].replace(/[^\w\s]/gi,'');
     for (let i=0;i<answer.length;i++){
       if(answer[i] == " "){
         space.push(i);
