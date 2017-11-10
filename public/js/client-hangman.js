@@ -16,13 +16,12 @@ $(function(){
         't', 'u', 'v', 'w', 'x', 'y', 'z','0','1','2','3','4','5','6','7','8','9'];
 
 
-  if(new_game){
-    //set all the variables to 0 and get a new question. Invoked only when page reloads
     $('#NameModal').modal('show');
     $('#save-button').on('click',function(){
       name = $('#name').val();
       get_question();
     });
+
 
     draw_keyboard();
     }
@@ -47,7 +46,6 @@ $(function(){
   $('#new').on('click',function(){
     start_new_game();
   });
-
 
   $('#hint').on('click',function(){
       $('#clue').text(hint);
