@@ -21,10 +21,7 @@ $(function(){
       name = $('#name').val();
       get_question();
     });
-
-
     draw_keyboard();
-    }
 
   $(document).on('keypress', function(evt){
     let value = 0; 
