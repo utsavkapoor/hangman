@@ -49,5 +49,8 @@ function draw_pie_chart(data_obj){
                 return "translate(" + arc.centroid(d) + ")";      
   })
   .attr("text-anchor","middle")
-  .text(function(d,i){ return data[i].label;});
+  .text(function(d,i){ 
+    let str = data[i].label + "\n" + data[i].value;
+    return str;
+  });
 }
