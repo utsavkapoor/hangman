@@ -12,13 +12,15 @@ var app = express();
 var port = process.env.PORT || 3000;
 var highscore = require('./views/high-data.js');
 var session = require('express-session');
-var question,answer,activegame;
+var question,answer,activegame,display_answer="";
 var session_stats = {name:"",won:0,lost:0};
 var mongodb = require('mongodb');
 var mongoclient = mongodb.MongoClient;
 var hangman = require('./views/hangman.js');
 var redisStore = require('connect-redis')(session);
 var redis = require('redis');
+require('dotenv').config({path:'.env'});
+
 
 app.use(session({
     name: 'HangmanGameId',
@@ -28,13 +30,20 @@ app.use(session({
 }));
 
 
+if(!module.parent){
+var server = app.listen(port, function () {
+ console.log('serverlistening at' + port);
+
+});
+}
+module.exports = app;
 
 if (!process.env.DISABLE_XORIGIN) {
  app.use(function(req, res, next) {
-   var allowedOrigins = ['https://narrow-plane.gomix.me', 'https://www.freecodecamp.com'];
+   var allowedOrigins = ['https://narrow-plane.gomix.me'];
    var origin = req.headers.origin || '*';
    if(!process.env.XORIG_RESTRICT || allowedOrigins.indexOf(origin) > -1){
-        console.log(origin);
+        //console.log(origin);
         res.setHeader('Access-Control-Allow-Origin', origin);
         res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
    }
@@ -45,16 +54,12 @@ if (!process.env.DISABLE_XORIGIN) {
 app.use('/public', express.static(process.cwd() + '/public'));
 
 app.route('/key/:letter').post(function(req,res){
-  //console.log(req.session);
   if(req.session && req.session.game){
   loadGame(req.session.game);
   let letter = req.params.letter;
   let json = activegame.checkLetter(letter);
   req.session.game = activegame;
   req.session.save();
-  console.log(req.session.game);
-  console.log("check value"+json.attempt_left);
-  console.log(json.status);
   if(json.status === "LOST" || json.status === "WIN"){
     // make session as null for next game to start
     req.session.game = null;
@@ -64,10 +69,11 @@ app.route('/key/:letter').post(function(req,res){
       save_to_database(session_stats,"win");
     } else {
       save_to_database(session_stats,"loss");
+      display_answer=answer;
     }
 
   }
-  let object = {gameStat:session_stats,attempt_left:json.attempt_left,fillpositions:json.fillpositions,status:json.status};
+  let object = {gameStat:session_stats,attempt_left:json.attempt_left,fillpositions:json.fillpositions,status:json.status,answer:display_answer};
   res.send(object);
   } else {
     res.status(400).end();
@@ -98,14 +104,12 @@ app.get('/highscore-data',function(req,res){
       send_data("pie_data",data);
 
   },function(err){
-    console.log("error in pie data");
         res.send({status:'error'});
     });
 
   highscore.findNameData().then(function(data){
         send_data("player_data",data);
   },function(err){
-        console.log(err);
         res.send({status:'error'});
   });
 
@@ -116,7 +120,7 @@ app.get('/highscore-data',function(req,res){
     } else if (i===2){
       object[key] = value;
       i=0;
-      object.status ='sucess';
+      object.status ='success';
       res.send(object);
     }
   }
@@ -124,9 +128,6 @@ app.get('/highscore-data',function(req,res){
 });
 
 app.get('/question/:name',function(req,res){
-  if(req.params.name == ""){
-    res.status(400).send("Bad Request.");
-  }
   var rand = Math.random() * (200 - 1) + 1;
   let url ="https://qriusity.com/v1/questions?page="+rand+"&limit=1";
   request(url,function(error,response,body){
@@ -153,9 +154,7 @@ app.get('/question/:name',function(req,res){
     answer_letters.sort();
     let new_game = new hangman(answer,0,[],answer_letters);
     req.session.game = new_game;
-    console.log(req.session.game);
     req.session.save();
-    console.log("game"+new_game);
 
     //Send hangman session information here. A new Hangman Instance will be created
     retrive_info(name,res,question_answer);
@@ -184,7 +183,7 @@ function loadGame(ongoingGame){
 
 //function returns game stats to user and sets the stats for the session
 function retrive_info(name,res,object){
- var url = process.env.MongodbURL;
+ let url = process.env.MongodbURL;
   let getUserData = function(){
   return mongoclient.connect(url).then(function(db){
     let collection = db.collection('players');
@@ -214,7 +213,6 @@ function retrive_info(name,res,object){
    res.send(object);
 
  },function(err){
-   console.log("Something is Wrong");
    res.send(object);
  });
 }
@@ -255,8 +253,3 @@ function save_to_database(session_stats,str){
   });
 
 }
-
-app.listen(port, function () {
- console.log('serverlistening at' + port);
-
-});

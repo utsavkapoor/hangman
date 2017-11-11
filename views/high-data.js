@@ -1,11 +1,11 @@
 'use strict'
 var mongodb = require("mongodb");
+require('dotenv').config({path:'~/.env'});
 var MongoClient = mongodb.MongoClient;
-var mongourl = process.env.MongodbURL;
-
 
 module.exports = {
   findHighData: function(){
+    var mongourl = process.env.MongodbURL;
     return MongoClient.connect(mongourl).then(function(db){
       let collection = db.collection('highscore');
       let query = {"name":"none"};
@@ -19,6 +19,7 @@ module.exports = {
     });
   },
   findNameData: function(){
+    var mongourl = process.env.MongodbURL;
     return MongoClient.connect(mongourl).then(function(db){
       let collection = db.collection('players');
        return collection.find().sort({"Percentage":-1}).limit(5).toArray();
@@ -33,9 +34,8 @@ module.exports = {
       obj.loss = items[i].Loss;
       answer.push(obj);
       }
-      console.log(answer);
+      //console.log(answer);
       return answer;
   });
   }
 };
-

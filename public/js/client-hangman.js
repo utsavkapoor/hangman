@@ -21,10 +21,11 @@ $(function(){
       name = $('#name').val();
       get_question();
     });
+
     draw_keyboard();
 
   $(document).on('keypress', function(evt){
-    let value = 0; 
+    let value = 0;
     if(evt.keyCode-64 < 27 && evt.keyCode > 0){
       value = 65;
     } else if(evt.keyCode-96 < 27 && evt.keyCode-96 > 0){
@@ -137,9 +138,10 @@ $.getJSON('/question/'+ name,function(JSON){
       show_lives_left();
       if(JSON.status === "LOST"){
         //show You Lost and block all the keys
-        $("#game-status").text("YOU LOST");
+        $("#game-status").text("YOU LOST. Correct answer is "+ JSON.answer);
         $("#game-status").css("color","red");
         $('.btn-class').prop('disabled',true);
+
       } else if(JSON.status === "WIN"){
         //show You Won and block all the keys in keyboard
         $("#game-status").text("YOU WIN");
